@@ -1,6 +1,6 @@
 ﻿namespace Task1
 {
-    internal class ExeptionsLottery
+    internal class ExceptionsLottery
     {
         static void Main(string[] args)
         {

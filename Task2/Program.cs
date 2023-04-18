@@ -9,20 +9,28 @@ namespace Task2
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("This application will sort the provided strings, or use a demo list to sort, if you didnt provide one any arguments.");
-            if (args.Length == 0 )
+            try
             {
-                Console.WriteLine("Here is your hard coded demo list:");
-                args = new string[] { "Ivanov", "Petrov", "Sidorov", "Semenov", "Kuznetsov" };
-                Console.WriteLine(String.Join(Environment.NewLine, args));
+                Console.WriteLine("This application will sort the provided strings, or use a demo list to sort, if you didnt provide one any arguments.");
+                if (args.Length == 0 )
+                {
+                    Console.WriteLine("Here is your hard coded demo list:");
+                    args = new string[] { "Ivanov", "Petrov", "Sidorov", "Semenov", "Kuznetsov" };
+                    Console.WriteLine(String.Join(Environment.NewLine, args));
+                }
+
+                var UserInput = new SortInputCommand(args);
+                Console.WriteLine("Press 1 to sort alphabeticly or 2 to sort in reverse alphabetical order.");
+                UserInput.GetInputAndSort();
+
+                Console.WriteLine();
+                Console.WriteLine("Here is your sorted list:");
+                Console.WriteLine(String.Join(Environment.NewLine, args));  
             }
-
-            var UserInput = new SortInputCommand(args);
-            Console.WriteLine("Input 1 to sort alphabeticly or 2 to sort in reverse alphabetical order.");
-            UserInput.GetInputAndSort();
-
-            Console.WriteLine("Here is your sorted list:");
-            Console.WriteLine(String.Join(Environment.NewLine, args));  
+            catch (InvalidInputException e)
+            {
+                Console.WriteLine($"You pressed wrong key.");
+            }
         }
     }
 
@@ -34,6 +42,9 @@ namespace Task2
         public event SortAlph NeedAlphSort;
         public event SortRevAlph NeedReverseAlphSort;
 
+        // It feels weird to put subscription in main, and i wanted to do it inside the class.
+        // The consructor seems like a good plase for it, but read somewhere what
+        // putting business logic where is bad, maybe its the case for the bigger projects?
         public SortInputCommand(string[] arr)
         {
             _arr = arr;
@@ -43,19 +54,19 @@ namespace Task2
         }
         public void GetInputAndSort()
         {
-           switch (Console.ReadLine())
+           switch (Console.ReadKey().Key)
             {
-                case "1":
+                case ConsoleKey.D1:
                     {
                         NeedAlphSort?.Invoke(ref _arr); break;
                     }
-                case "2":
+                case ConsoleKey.D2:
                     {
                         NeedReverseAlphSort?.Invoke(ref _arr); break;
                     }
                 default:
                     {
-                        throw new FormatException();
+                        throw new InvalidInputException();
                     }
             }
         }
@@ -78,6 +89,6 @@ namespace Task2
 
     public class InvalidInputException : Exception
     {
-        public InvalidInputException(string message) : base(message) { }
+        public InvalidInputException() : base() { }
     }
 }

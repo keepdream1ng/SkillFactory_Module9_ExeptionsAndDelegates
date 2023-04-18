@@ -29,7 +29,17 @@ namespace Task2
             }
             catch (InvalidInputException e)
             {
-                Console.WriteLine($"You pressed wrong key.");
+                Console.WriteLine($" - this key you pressed is not 1 or 2. Error accured.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                Console.WriteLine();
+                Console.WriteLine("Press any key to exit.");
+                Console.ReadKey();
             }
         }
     }
@@ -37,7 +47,6 @@ namespace Task2
     public class SortInputCommand
     {
         private string[] _arr;
-        MyEventStringSorter sorter;
 
         public event SortAlph NeedAlphSort;
         public event SortRevAlph NeedReverseAlphSort;
@@ -48,7 +57,6 @@ namespace Task2
         public SortInputCommand(string[] arr)
         {
             _arr = arr;
-            sorter = new MyEventStringSorter();
             NeedAlphSort += MyEventStringSorter.SortInAlphabetical;
             NeedReverseAlphSort += MyEventStringSorter.SortReverseAlphabetical;
         }
@@ -73,7 +81,7 @@ namespace Task2
     }
 
 
-    public class MyEventStringSorter
+    public static class MyEventStringSorter
     {
         public static void SortInAlphabetical(ref string[] arr)
         {

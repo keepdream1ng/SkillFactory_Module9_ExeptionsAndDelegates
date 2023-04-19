@@ -1,10 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Task2
+﻿namespace Task2
 {
-    public delegate void SortAlph(ref string[] s);
-    public delegate void SortRevAlph(ref string[] s);
-
     public class StringsSortApp
     {
         public static void Main(string[] args)
@@ -46,19 +41,25 @@ namespace Task2
 
     public class SortInputCommand
     {
-        private string[] _arr;
+        public string[] ArrToSort;
 
-        public event SortAlph NeedAlphSort;
-        public event SortRevAlph NeedReverseAlphSort;
+        public delegate void NeedAlphSortEventHandler(ref string[] s);
+        public event NeedAlphSortEventHandler NeedAlphSort;
+
+        public delegate void NeedReverseAlphSortEventHandler(ref string[] s);
+        public event NeedReverseAlphSortEventHandler NeedReverseAlphSort;
+
+        private MyEventStringSorter _sorter;
 
         // It feels weird to put subscription in main, and i wanted to do it inside the class.
-        // The consructor seems like a good plase for it, but read somewhere what
-        // putting business logic where is bad, maybe its the case for the bigger projects?
+        // The consructor seems like a good plase for it, but I read somewhere what
+        // putting business logic there is bad, maybe its the case for the bigger projects?
         public SortInputCommand(string[] arr)
         {
-            _arr = arr;
-            NeedAlphSort += MyEventStringSorter.SortInAlphabetical;
-            NeedReverseAlphSort += MyEventStringSorter.SortReverseAlphabetical;
+            ArrToSort = arr;
+            _sorter = new MyEventStringSorter();
+            NeedAlphSort += _sorter.SortInAlphabetical;
+            NeedReverseAlphSort += _sorter.SortReverseAlphabetical;
         }
         public void GetInputAndSort()
         {
@@ -66,11 +67,11 @@ namespace Task2
             {
                 case ConsoleKey.D1:
                     {
-                        NeedAlphSort?.Invoke(ref _arr); break;
+                        NeedAlphSort?.Invoke(ref ArrToSort); break;
                     }
                 case ConsoleKey.D2:
                     {
-                        NeedReverseAlphSort?.Invoke(ref _arr); break;
+                        NeedReverseAlphSort?.Invoke(ref ArrToSort); break;
                     }
                 default:
                     {
@@ -81,14 +82,14 @@ namespace Task2
     }
 
 
-    public static class MyEventStringSorter
+    public class MyEventStringSorter
     {
-        public static void SortInAlphabetical(ref string[] arr)
+        public void SortInAlphabetical(ref string[] arr)
         {
             Array.Sort(arr);
         }
 
-        public static void SortReverseAlphabetical(ref string[] arr)
+        public void SortReverseAlphabetical(ref string[] arr)
         {
             SortInAlphabetical(ref arr);
             Array.Reverse(arr);

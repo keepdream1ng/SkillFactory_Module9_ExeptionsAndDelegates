@@ -1,6 +1,6 @@
 ﻿namespace Task2
 {
-    public class StringsSortApp
+    public class StringsSortByEventApp
     {
         public static void Main(string[] args)
         {
@@ -14,9 +14,8 @@
                     Console.WriteLine(String.Join(Environment.NewLine, args));
                 }
 
-                var UserInput = new SortInputCommand(args);
-                Console.WriteLine("Press 1 to sort alphabeticly or 2 to sort in reverse alphabetical order.");
-                UserInput.GetInputAndSort();
+                var SortCaller = new MySortEventPublisher();
+                SortCaller.GetInputAndSort(args);
 
                 Console.WriteLine();
                 Console.WriteLine("Here is your sorted list:");
@@ -24,7 +23,7 @@
             }
             catch (InvalidInputException e)
             {
-                Console.WriteLine($" - this key you pressed is not 1 or 2. Error accured.");
+                Console.WriteLine($" - this key you pressed is not 1 or 2. Error occurred.");
             }
             catch (Exception e)
             {
@@ -39,39 +38,37 @@
         }
     }
 
-    public class SortInputCommand
+    public class MySortEventPublisher
     {
-        public string[] ArrToSort;
-
-        public delegate void NeedAlphSortEventHandler(ref string[] s);
+        public delegate void NeedAlphSortEventHandler(string[] s);
         public event NeedAlphSortEventHandler NeedAlphSort;
 
-        public delegate void NeedReverseAlphSortEventHandler(ref string[] s);
+        public delegate void NeedReverseAlphSortEventHandler(string[] s);
         public event NeedReverseAlphSortEventHandler NeedReverseAlphSort;
 
-        private MyEventStringSorter _sorter;
+        private MyEventStringSortSubscriber _sorter;
 
         // It feels weird to put subscription in main, and i wanted to do it inside the class.
         // The consructor seems like a good plase for it, but I read somewhere what
         // putting business logic there is bad, maybe its the case for the bigger projects?
-        public SortInputCommand(string[] arr)
+        public MySortEventPublisher()
         {
-            ArrToSort = arr;
-            _sorter = new MyEventStringSorter();
+            _sorter = new MyEventStringSortSubscriber();
             NeedAlphSort += _sorter.SortInAlphabetical;
             NeedReverseAlphSort += _sorter.SortReverseAlphabetical;
         }
-        public void GetInputAndSort()
+        public void GetInputAndSort(string[] arr)
         {
-           switch (Console.ReadKey().Key)
+            Console.WriteLine("Press 1 to sort alphabeticly or 2 to sort in reverse alphabetical order.");
+            switch (Console.ReadKey().Key)
             {
                 case ConsoleKey.D1:
                     {
-                        NeedAlphSort?.Invoke(ref ArrToSort); break;
+                        NeedAlphSort?.Invoke(arr); break;
                     }
                 case ConsoleKey.D2:
                     {
-                        NeedReverseAlphSort?.Invoke(ref ArrToSort); break;
+                        NeedReverseAlphSort?.Invoke(arr); break;
                     }
                 default:
                     {
@@ -81,17 +78,16 @@
         }
     }
 
-
-    public class MyEventStringSorter
+    public class MyEventStringSortSubscriber
     {
-        public void SortInAlphabetical(ref string[] arr)
+        public void SortInAlphabetical(string[] arr)
         {
             Array.Sort(arr);
         }
 
-        public void SortReverseAlphabetical(ref string[] arr)
+        public void SortReverseAlphabetical(string[] arr)
         {
-            SortInAlphabetical(ref arr);
+            SortInAlphabetical(arr);
             Array.Reverse(arr);
         }
     }
